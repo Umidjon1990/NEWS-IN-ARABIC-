@@ -1,0 +1,12 @@
+services:
+  arabic-tech-news-bot:
+    build: .
+    container_name: arabic-tech-news-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./config.yaml:/app/config.yaml:ro
+    environment:
+      - TZ=Asia/Tashkent

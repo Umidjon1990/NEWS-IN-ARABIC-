@@ -1,0 +1,21 @@
+schedule:
+  hour: 9
+  minute: 0
+  timezone: "Asia/Tashkent"
+
+news:
+  max_items_to_check: 10
+  sources:
+    - name: "TechCrunch"
+      url: "https://techcrunch.com/feed/"
+    - name: "The Verge"
+      url: "https://www.theverge.com/rss/index.xml"
+    - name: "MIT Technology Review"
+      url: "https://www.technologyreview.com/feed/"
+
+post:
+  language: "Arabic"
+  min_words: 50
+  max_words: 70
+  add_harakat: true
+  level: "A2-B1"
