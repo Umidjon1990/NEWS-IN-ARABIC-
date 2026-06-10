@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}To'lovlar{% endblock %}
+{% block heading %}To'lovlar{% endblock %}
+
+{% block content %}
+<div class="cards">
+    <div class="card accent">
+        <div class="label">Umumiy tushum</div>
+        <div class="value green">{{ total | money }}</div>
+    </div>
+</div>
+
+<div class="panel">
+{% if payments %}
+<table>
+    <thead><tr><th>A'zo</th><th>Summa</th><th>Usul</th><th>Izoh</th><th>Sana</th></tr></thead>
+    <tbody>
+    {% for p in payments %}
+        <tr>
+            <td><a href="{{ url_for('member_detail', member_id=p.member_id) }}">{{ p.member.full_name }}</a></td>
+            <td><b>{{ p.amount | money }}</b></td>
+            <td>{{ p.method }}</td>
+            <td class="muted">{{ p.note or '—' }}</td>
+            <td>{{ p.paid_at | dt }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}<p class="empty">Hali to'lovlar yo'q</p>{% endif %}
+</div>
+{% endblock %}

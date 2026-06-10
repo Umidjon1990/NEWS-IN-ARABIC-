@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ 'A\'zoni tahrirlash' if member else 'Yangi a\'zo' }}{% endblock %}
+{% block heading %}{{ 'A\'zoni tahrirlash' if member else 'Yangi a\'zo qo\'shish' }}{% endblock %}
+
+{% block content %}
+<div class="panel" style="max-width:640px">
+<form method="post">
+    <div class="field">
+        <label>F.I.Sh *</label>
+        <input type="text" name="full_name" required value="{{ member.full_name if member else '' }}">
+    </div>
+    <div class="row">
+        <div class="field">
+            <label>Telefon</label>
+            <input type="text" name="phone" placeholder="+998 90 123 45 67" value="{{ member.phone if member else '' }}">
+        </div>
+        <div class="field">
+            <label>Email</label>
+            <input type="email" name="email" value="{{ member.email if member else '' }}">
+        </div>
+    </div>
+    <div class="row">
+        <div class="field">
+            <label>Jinsi</label>
+            <select name="gender">
+                <option value="">—</option>
+                <option value="Erkak" {{ 'selected' if member and member.gender=='Erkak' }}>Erkak</option>
+                <option value="Ayol" {{ 'selected' if member and member.gender=='Ayol' }}>Ayol</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Tug'ilgan sana</label>
+            <input type="date" name="birth_date" value="{{ member.birth_date.isoformat() if member and member.birth_date else '' }}">
+        </div>
+    </div>
+    <div class="field">
+        <label>Murabbiy</label>
+        <select name="trainer_id">
+            <option value="">— Biriktirilmagan —</option>
+            {% for t in trainers %}
+            <option value="{{ t.id }}" {{ 'selected' if member and member.trainer_id==t.id }}>{{ t.full_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="field">
+        <label>Izoh</label>
+        <textarea name="notes" rows="2">{{ member.notes if member else '' }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">💾 Saqlash</button>
+    <a href="{{ url_for('members') }}" class="btn">Bekor qilish</a>
+</form>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Tariflar{% endblock %}
+{% block heading %}Tarif rejalari{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+    <div class="panel">
+        <h2>Mavjud tariflar</h2>
+        {% if plans %}
+        <table>
+            <thead><tr><th>Nomi</th><th>Muddat</th><th>Narx</th><th>Holat</th><th class="right"></th></tr></thead>
+            <tbody>
+            {% for p in plans %}
+                <tr>
+                    <td><b>{{ p.name }}</b><br><span class="muted">{{ p.description or '' }}</span></td>
+                    <td>{{ p.duration_days }} kun</td>
+                    <td>{{ p.price | money }}</td>
+                    <td>{% if p.is_active %}<span class="badge active">Faol</span>{% else %}<span class="badge expired">Yashirin</span>{% endif %}</td>
+                    <td class="right">
+                        <form method="post" action="{{ url_for('plan_toggle', plan_id=p.id) }}" style="display:inline">
+                            <button class="btn btn-sm">{{ 'Yashirish' if p.is_active else 'Faollashtirish' }}</button>
+                        </form>
+                        <form method="post" action="{{ url_for('plan_delete', plan_id=p.id) }}" style="display:inline"
+                              onsubmit="return confirm('O\'chirilsinmi?')">
+                            <button class="btn btn-sm btn-danger">🗑️</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<p class="empty">Tarif yo'q</p>{% endif %}
+    </div>
+
+    <div class="panel">
+        <h2>➕ Yangi tarif</h2>
+        <form method="post">
+            <div class="field"><label>Nomi *</label><input type="text" name="name" required></div>
+            <div class="row">
+                <div class="field"><label>Muddat (kun) *</label><input type="number" name="duration_days" value="30" min="1" required></div>
+                <div class="field"><label>Narx (so'm) *</label><input type="number" name="price" min="0" step="1000" required></div>
+            </div>
+            <div class="field"><label>Tavsif</label><input type="text" name="description"></div>
+            <button class="btn btn-primary">💾 Qo'shish</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

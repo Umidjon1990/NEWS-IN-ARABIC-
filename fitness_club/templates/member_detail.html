@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}{{ member.full_name }}{% endblock %}
+{% block heading %}A'zo profili{% endblock %}
+
+{% block content %}
+<div class="detail-head">
+    <div class="avatar">{{ member.full_name[0] | upper }}</div>
+    <div class="meta">
+        <h2>{{ member.full_name }}
+            {% if member.status == 'active' %}<span class="badge active">Faol</span>
+            {% elif member.status == 'expiring' %}<span class="badge expiring">Tugayapti</span>
+            {% else %}<span class="badge expired">Tugagan</span>{% endif %}
+        </h2>
+        <p>{{ member.phone or 'Telefon yo\'q' }} · {{ member.email or '—' }}
+           {% if member.trainer %} · Murabbiy: {{ member.trainer.full_name }}{% endif %}</p>
+    </div>
+</div>
+
+<div class="toolbar">
+    <form method="post" action="{{ url_for('member_checkin', member_id=member.id) }}">
+        <button class="btn btn-green">✅ Kirish belgilash</button>
+    </form>
+    <a href="{{ url_for('member_edit', member_id=member.id) }}" class="btn">✏️ Tahrirlash</a>
+    <form method="post" action="{{ url_for('member_delete', member_id=member.id) }}"
+          onsubmit="return confirm('A\'zo o\'chirilsinmi?')">
+        <button class="btn btn-danger">🗑️ O'chirish</button>
+    </form>
+</div>
+
+<div class="cards">
+    <div class="card accent">
+        <div class="label">Abonement tugashi</div>
+        <div class="value" style="font-size:22px">{{ member.end_date | dt }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Jami to'lovlar</div>
+        <div class="value green" style="font-size:22px">
+            {{ (member.payments | sum(attribute='amount')) | money }}
+        </div>
+    </div>
+    <div class="card">
+        <div class="label">Tashriflar soni</div>
+        <div class="value" style="font-size:22px">{{ member.attendances | length }}</div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="panel">
+        <h2>🎟️ Abonement biriktirish</h2>
+        <form method="post" action="{{ url_for('member_subscribe', member_id=member.id) }}">
+            <div class="field">
+                <label>Tarif</label>
+                <select name="plan_id" required>
+                    {% for p in plans %}
+                    <option value="{{ p.id }}">{{ p.name }} — {{ p.price | money }} ({{ p.duration_days }} kun)</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="row">
+                <div class="field">
+                    <label>To'lov usuli</label>
+                    <select name="method">
+                        <option value="naqd">Naqd</option>
+                        <option value="karta">Karta</option>
+                        <option value="o'tkazma">O'tkazma</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>To'lov bilan</label>
+                    <select name="with_payment">
+                        <option value="1">Ha, to'lov qo'shilsin</option>
+                        <option value="">Yo'q</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-block">✅ Biriktirish</button>
+        </form>
+
+        <h2 style="margin-top:22px">💳 Qo'shimcha to'lov</h2>
+        <form method="post" action="{{ url_for('member_pay', member_id=member.id) }}" class="inline-form">
+            <div class="field"><label>Summa</label><input type="number" name="amount" min="0" step="1000" required></div>
+            <div class="field"><label>Usul</label>
+                <select name="method">
+                    <option value="naqd">Naqd</option><option value="karta">Karta</option><option value="o'tkazma">O'tkazma</option>
+                </select>
+            </div>
+            <button class="btn">Qabul qilish</button>
+        </form>
+    </div>
+
+    <div class="panel">
+        <h2>📜 Abonementlar tarixi</h2>
+        {% if member.memberships %}
+        <table>
+            <thead><tr><th>Tarif</th><th>Boshlanish</th><th>Tugash</th></tr></thead>
+            <tbody>
+            {% for m in member.memberships | sort(attribute='start_date', reverse=true) %}
+                <tr><td>{{ m.plan.name }}</td><td>{{ m.start_date | dt }}</td><td>{{ m.end_date | dt }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<p class="empty">Abonement yo'q</p>{% endif %}
+
+        <h2 style="margin-top:22px">🕘 So'nggi tashriflar</h2>
+        {% if member.attendances %}
+        <table>
+            <tbody>
+            {% for a in member.attendances | sort(attribute='checked_in_at', reverse=true) %}
+                {% if loop.index <= 8 %}<tr><td>{{ a.checked_in_at | dt }}</td></tr>{% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<p class="empty">Tashriflar yo'q</p>{% endif %}
+    </div>
+</div>
+{% endblock %}

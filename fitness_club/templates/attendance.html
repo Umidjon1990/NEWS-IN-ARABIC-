@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Davomat{% endblock %}
+{% block heading %}Davomat{% endblock %}
+
+{% block content %}
+<div class="toolbar">
+    <form method="get" class="inline-form">
+        <div class="field">
+            <label>Sana</label>
+            <input type="date" name="day" value="{{ day.isoformat() }}">
+        </div>
+        <button class="btn">Ko'rsatish</button>
+    </form>
+    <span class="muted">Tanlangan kunda jami: <b>{{ attendances | length }}</b> ta tashrif</span>
+</div>
+
+<div class="panel">
+{% if attendances %}
+<table>
+    <thead><tr><th>A'zo</th><th>Telefon</th><th>Kirish vaqti</th><th>Holat</th></tr></thead>
+    <tbody>
+    {% for a in attendances %}
+        <tr>
+            <td><a href="{{ url_for('member_detail', member_id=a.member_id) }}">{{ a.member.full_name }}</a></td>
+            <td>{{ a.member.phone or '—' }}</td>
+            <td>{{ a.checked_in_at | dt }}</td>
+            <td>
+                {% if a.member.status == 'active' %}<span class="badge active">Faol</span>
+                {% elif a.member.status == 'expiring' %}<span class="badge expiring">Tugayapti</span>
+                {% else %}<span class="badge expired">Tugagan</span>{% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}<p class="empty">Bu kunda tashriflar yo'q</p>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Bosh sahifa{% endblock %}
+{% block heading %}Bosh sahifa{% endblock %}
+
+{% block content %}
+<div class="cards">
+    <div class="card accent">
+        <div class="label">Jami a'zolar</div>
+        <div class="value">{{ total_members }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Faol a'zolar</div>
+        <div class="value green">{{ active }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Tugayotgan</div>
+        <div class="value amber">{{ expiring }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Muddati tugagan</div>
+        <div class="value red">{{ expired }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Bugungi tashriflar</div>
+        <div class="value">{{ today_attendance }}</div>
+    </div>
+</div>
+
+<div class="cards">
+    <div class="card">
+        <div class="label">Shu oylik tushum</div>
+        <div class="value green">{{ month_income | money }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Umumiy tushum</div>
+        <div class="value">{{ total_income | money }}</div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="panel">
+        <h2>⚠️ Abonementi tugayotganlar</h2>
+        {% if expiring_soon %}
+        <table>
+            <thead><tr><th>A'zo</th><th>Tugaydi</th><th>Holat</th></tr></thead>
+            <tbody>
+            {% for m in expiring_soon %}
+                <tr>
+                    <td><a href="{{ url_for('member_detail', member_id=m.id) }}">{{ m.full_name }}</a></td>
+                    <td>{{ m.end_date | dt }}</td>
+                    <td>
+                        {% if m.status == 'expiring' %}<span class="badge expiring">Tugayapti</span>
+                        {% else %}<span class="badge expired">Tugagan</span>{% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty">Hammasi joyida 👍</p>
+        {% endif %}
+    </div>
+
+    <div class="panel">
+        <h2>💳 So'nggi to'lovlar</h2>
+        {% if recent_payments %}
+        <table>
+            <thead><tr><th>A'zo</th><th>Summa</th><th>Sana</th></tr></thead>
+            <tbody>
+            {% for p in recent_payments %}
+                <tr>
+                    <td>{{ p.member.full_name }}</td>
+                    <td>{{ p.amount | money }}</td>
+                    <td>{{ p.paid_at | dt }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty">Hali to'lovlar yo'q</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

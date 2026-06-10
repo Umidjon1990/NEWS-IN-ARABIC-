@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}A'zolar{% endblock %}
+{% block heading %}A'zolar{% endblock %}
+
+{% block content %}
+<div class="toolbar">
+    <a href="{{ url_for('member_new') }}" class="btn btn-primary">➕ Yangi a'zo</a>
+    <div class="filters">
+        <a href="{{ url_for('members', q=q) }}" class="{{ 'on' if not status }}">Hammasi</a>
+        <a href="{{ url_for('members', q=q, status='active') }}" class="{{ 'on' if status=='active' }}">Faol</a>
+        <a href="{{ url_for('members', q=q, status='expiring') }}" class="{{ 'on' if status=='expiring' }}">Tugayotgan</a>
+        <a href="{{ url_for('members', q=q, status='expired') }}" class="{{ 'on' if status=='expired' }}">Tugagan</a>
+    </div>
+    {% if q %}<span class="muted">"{{ q }}" bo'yicha qidiruv</span>{% endif %}
+</div>
+
+<div class="panel">
+{% if members %}
+<table>
+    <thead>
+        <tr><th>Ism</th><th>Telefon</th><th>Tarif tugashi</th><th>Holat</th><th>Murabbiy</th><th class="right">Amallar</th></tr>
+    </thead>
+    <tbody>
+    {% for m in members %}
+        <tr>
+            <td><a href="{{ url_for('member_detail', member_id=m.id) }}"><b>{{ m.full_name }}</b></a></td>
+            <td>{{ m.phone or '—' }}</td>
+            <td>{{ m.end_date | dt }}</td>
+            <td>
+                {% if m.status == 'active' %}<span class="badge active">Faol</span>
+                {% elif m.status == 'expiring' %}<span class="badge expiring">Tugayapti</span>
+                {% else %}<span class="badge expired">Tugagan</span>{% endif %}
+            </td>
+            <td>{{ m.trainer.full_name if m.trainer else '—' }}</td>
+            <td class="right">
+                <form method="post" action="{{ url_for('member_checkin', member_id=m.id) }}" style="display:inline">
+                    <button class="btn btn-sm btn-green">✅ Kirish</button>
+                </form>
+                <a href="{{ url_for('member_detail', member_id=m.id) }}" class="btn btn-sm">Ko'rish</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="empty">A'zolar topilmadi. <a href="{{ url_for('member_new') }}">Birinchi a'zoni qo'shing →</a></p>
+{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Murabbiylar{% endblock %}
+{% block heading %}Murabbiylar{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+    <div class="panel">
+        <h2>Murabbiylar ro'yxati</h2>
+        {% if trainers %}
+        <table>
+            <thead><tr><th>Ism</th><th>Mutaxassislik</th><th>Telefon</th><th>A'zolar</th><th class="right"></th></tr></thead>
+            <tbody>
+            {% for t in trainers %}
+                <tr>
+                    <td><b>{{ t.full_name }}</b></td>
+                    <td>{{ t.speciality or '—' }}</td>
+                    <td>{{ t.phone or '—' }}</td>
+                    <td>{{ t.members | length }}</td>
+                    <td class="right">
+                        <form method="post" action="{{ url_for('trainer_delete', trainer_id=t.id) }}"
+                              onsubmit="return confirm('O\'chirilsinmi?')">
+                            <button class="btn btn-sm btn-danger">🗑️</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<p class="empty">Murabbiylar yo'q</p>{% endif %}
+    </div>
+
+    <div class="panel">
+        <h2>➕ Yangi murabbiy</h2>
+        <form method="post">
+            <div class="field"><label>F.I.Sh *</label><input type="text" name="full_name" required></div>
+            <div class="field"><label>Mutaxassislik</label><input type="text" name="speciality" placeholder="Bodybuilding, Yoga, Boks…"></div>
+            <div class="field"><label>Telefon</label><input type="text" name="phone"></div>
+            <button class="btn btn-primary">💾 Qo'shish</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Fitnes Klub{% endblock %} — GymManager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">🏋️ <span>GymManager</span></div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint=='dashboard' }}">📊 Bosh sahifa</a>
+            <a href="{{ url_for('members') }}" class="{{ 'active' if request.endpoint in ['members','member_detail','member_new','member_edit'] }}">👥 A'zolar</a>
+            <a href="{{ url_for('attendance') }}" class="{{ 'active' if request.endpoint=='attendance' }}">✅ Davomat</a>
+            <a href="{{ url_for('payments') }}" class="{{ 'active' if request.endpoint=='payments' }}">💳 To'lovlar</a>
+            <a href="{{ url_for('plans') }}" class="{{ 'active' if request.endpoint=='plans' }}">🎟️ Tariflar</a>
+            <a href="{{ url_for('trainers') }}" class="{{ 'active' if request.endpoint=='trainers' }}">🧑‍🏫 Murabbiylar</a>
+        </nav>
+        <div class="sidebar-foot">Fitnes klub boshqaruv tizimi</div>
+    </aside>
+
+    <main class="content">
+        <div class="topbar">
+            <h1>{% block heading %}{% endblock %}</h1>
+            <form action="{{ url_for('members') }}" method="get" class="search-top">
+                <input type="text" name="q" placeholder="A'zo qidirish (ism / telefon)…">
+                <button type="submit">🔍</button>
+            </form>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flashes">
+              {% for category, msg in messages %}
+                <div class="flash flash-{{ category }}">{{ msg }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+</body>
+</html>
