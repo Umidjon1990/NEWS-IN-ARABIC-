@@ -28,9 +28,17 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "fitnes-klub-maxfiy-kalit")
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(
-        BASE_DIR, "fitness.db"
+
+    # Railway PostgreSQL: DATABASE_URL avtomatik beriladi.
+    # Lokal ishlatishda SQLite ishlatiladi.
+    db_url = os.environ.get(
+        "DATABASE_URL",
+        "sqlite:///" + os.path.join(BASE_DIR, "fitness.db"),
     )
+    # Railway postgres:// prefiksini postgresql:// ga o'zgartirish (SQLAlchemy talab qiladi)
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
