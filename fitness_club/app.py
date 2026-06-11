@@ -1,9 +1,12 @@
 """Fitnes klubni boshqarish tizimi — Flask veb-ilovasi."""
+import csv
+import io
 import os
 from datetime import date, datetime, timedelta
 
 from flask import (
     Flask,
+    Response,
     flash,
     redirect,
     render_template,
@@ -173,6 +176,73 @@ def register_routes(app):
         return render_template(
             "member_form.html", member=None, trainers=Trainer.query.all()
         )
+
+    # ---------------- A'zolarni ommaviy (bulk) qo'shish ----------------
+    @app.route("/members/import/template")
+    def member_import_template():
+        """Namuna CSV shablonni yuklab beradi."""
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(["full_name", "phone", "email", "gender", "birth_date", "notes"])
+        writer.writerow(["Ali Valiyev", "+998901234567", "ali@example.com",
+                         "Erkak", "1995-03-15", "VIP mijoz"])
+        writer.writerow(["Madina Karimova", "+998907654321", "",
+                         "Ayol", "2000-08-22", ""])
+        # Excel UTF-8 ni to'g'ri o'qishi uchun BOM qo'shamiz
+        data = "﻿" + buf.getvalue()
+        return Response(
+            data,
+            mimetype="text/csv",
+            headers={"Content-Disposition": "attachment; filename=azolar_shablon.csv"},
+        )
+
+    @app.route("/members/import", methods=["GET", "POST"])
+    def member_import():
+        if request.method == "POST":
+            file = request.files.get("file")
+            if not file or not file.filename:
+                flash("Fayl tanlanmadi", "danger")
+                return redirect(url_for("member_import"))
+
+            try:
+                raw = file.read().decode("utf-8-sig")
+            except UnicodeDecodeError:
+                raw = file.read().decode("latin-1")
+
+            reader = csv.DictReader(io.StringIO(raw))
+            added, errors = 0, []
+            for i, row in enumerate(reader, start=2):  # 2 — sarlavhadan keyingi qator
+                name = (row.get("full_name") or "").strip()
+                if not name:
+                    errors.append(f"{i}-qator: ism (full_name) bo'sh")
+                    continue
+                member = Member(
+                    full_name=name,
+                    phone=(row.get("phone") or "").strip(),
+                    email=(row.get("email") or "").strip(),
+                    gender=(row.get("gender") or "").strip() or None,
+                    notes=(row.get("notes") or "").strip(),
+                )
+                bd = (row.get("birth_date") or "").strip()
+                if bd:
+                    try:
+                        member.birth_date = datetime.strptime(bd, "%Y-%m-%d").date()
+                    except ValueError:
+                        errors.append(
+                            f"{i}-qator: sana formati noto'g'ri ('{bd}'), "
+                            f"YYYY-MM-DD bo'lishi kerak"
+                        )
+                        continue
+                db.session.add(member)
+                added += 1
+
+            if added:
+                db.session.commit()
+            return render_template(
+                "member_import.html", result={"added": added, "errors": errors}
+            )
+
+        return render_template("member_import.html", result=None)
 
     @app.route("/members/<int:member_id>")
     def member_detail(member_id):

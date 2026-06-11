@@ -5,6 +5,7 @@
 {% block content %}
 <div class="toolbar">
     <a href="{{ url_for('member_new') }}" class="btn btn-primary">➕ Yangi a'zo</a>
+    <a href="{{ url_for('member_import') }}" class="btn">📥 Ro'yxat bilan qo'shish</a>
     <div class="filters">
         <a href="{{ url_for('members', q=q) }}" class="{{ 'on' if not status }}">Hammasi</a>
         <a href="{{ url_for('members', q=q, status='active') }}" class="{{ 'on' if status=='active' }}">Faol</a>

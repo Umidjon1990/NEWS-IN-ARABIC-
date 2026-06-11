@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}A'zolarni import qilish{% endblock %}
+{% block heading %}A'zolarni ommaviy qo'shish{% endblock %}
+
+{% block content %}
+<div class="toolbar">
+    <a href="{{ url_for('members') }}" class="btn">← A'zolar ro'yxatiga</a>
+</div>
+
+{% if result %}
+    <div class="panel" style="max-width:760px">
+        <h2>📊 Import natijasi</h2>
+        <div class="cards">
+            <div class="card accent">
+                <div class="label">Qo'shildi</div>
+                <div class="value green">{{ result.added }}</div>
+            </div>
+            <div class="card">
+                <div class="label">Xatolar</div>
+                <div class="value {{ 'red' if result.errors else '' }}">{{ result.errors | length }}</div>
+            </div>
+        </div>
+        {% if result.errors %}
+        <h2 style="margin-top:18px">⚠️ O'tkazib yuborilgan qatorlar</h2>
+        <ul class="muted" style="line-height:1.9">
+            {% for e in result.errors %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+        <div style="margin-top:18px">
+            <a href="{{ url_for('members') }}" class="btn btn-primary">✅ A'zolarni ko'rish</a>
+            <a href="{{ url_for('member_import') }}" class="btn">Yana import qilish</a>
+        </div>
+    </div>
+{% else %}
+    <div class="grid-2">
+        <div class="panel">
+            <h2>1️⃣ Shablonni yuklab oling</h2>
+            <p class="muted">Avval namuna CSV faylni yuklab oling. Uni Excel yoki Google
+               Sheets'da oching, o'z a'zolaringiz ma'lumotini kiriting va CSV holatida saqlang.</p>
+            <a href="{{ url_for('member_import_template') }}" class="btn btn-primary">⬇️ Shablonni yuklash (.csv)</a>
+
+            <h2 style="margin-top:24px">📋 Ustunlar</h2>
+            <table>
+                <thead><tr><th>Ustun</th><th>Majburiy</th><th>Misol</th></tr></thead>
+                <tbody>
+                    <tr><td><b>full_name</b></td><td><span class="badge expired">Ha</span></td><td>Ali Valiyev</td></tr>
+                    <tr><td>phone</td><td>Yo'q</td><td>+998901234567</td></tr>
+                    <tr><td>email</td><td>Yo'q</td><td>ali@example.com</td></tr>
+                    <tr><td>gender</td><td>Yo'q</td><td>Erkak / Ayol</td></tr>
+                    <tr><td>birth_date</td><td>Yo'q</td><td>1995-03-15</td></tr>
+                    <tr><td>notes</td><td>Yo'q</td><td>Izoh</td></tr>
+                </tbody>
+            </table>
+            <p class="muted" style="margin-top:10px">⚠️ Sana formati: <b>YYYY-MM-DD</b> (masalan 1995-03-15)</p>
+        </div>
+
+        <div class="panel">
+            <h2>2️⃣ To'ldirilgan faylni yuklang</h2>
+            <form method="post" enctype="multipart/form-data">
+                <div class="field">
+                    <label>CSV fayl</label>
+                    <input type="file" name="file" accept=".csv" required>
+                </div>
+                <button class="btn btn-primary btn-block">⬆️ Import qilish</button>
+            </form>
+            <p class="muted" style="margin-top:14px">
+                Fayl yuklangach, har bir qator bo'yicha a'zo qo'shiladi.
+                Ismi bo'sh yoki sanasi xato qatorlar o'tkazib yuboriladi va
+                natijada ko'rsatiladi.
+            </p>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
